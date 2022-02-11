@@ -6,6 +6,8 @@
  * install docker from www.docker.com and once installed, run this on your command line:
  * docker run --name mongo-00 -d -p 27017:27017 -e MONGO_INITDB_ROOT_USERNAME=mongoadmin -e MONGO_INITDB_ROOT_PASSWORD=secret mongo
  *
+ * connection string being: mongodb://mongoadmin:secret@localhost:27017
+ * 
  * STEP 2
  * go to the folder were you have downloaded this code and run this on your command line:
  * yarn
@@ -15,23 +17,27 @@
  * yarn start
  * 
  * Good luck have fun!
- * Do you want to know more? // https://github.com/bezkoder/node-express-mongodb
+ * Do you want to know more? https://github.com/bezkoder/node-express-mongodb
+ * To manage users and roles in mongodb: https://docs.mongodb.com/manual/tutorial/manage-users-and-roles/
  */
 
 const express = require("express");
-const cors = require("cors");
+// const cors = require("cors");
 const app = express();
 const mongoose = require('mongoose');
 
-mongoose.Promise = global.Promise;
-mongoose.connect('mongodb://localhost:27017/admin', {
+const dbName = 'AbriTest' // if the database doesn't exists, then it will be created
+// mongoose.Promise = global.Promise; // is this really needed?
+mongoose.connect(`mongodb://localhost:27017/${dbName}`, {
+    useUnifiedTopology: true,
     useNewUrlParser: true,
-    user: 'mongoadmin',
-    pass: 'secret',
+    // to connecto to "admin" db you need to login with below user + pass
+    // user: 'mongoadmin',
+    // pass: 'secret',
 }).then(() => {
-    console.log('successfully connected to the database');
+    console.log(`successfully connected to database ${dbName}`);
 }).catch(err => {
-    console.log('error connecting to the database');
+    console.log(`error connecting to database ${dbName}`);
     process.exit();
 });
 

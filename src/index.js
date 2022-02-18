@@ -27,19 +27,42 @@ const app = express();
 const mongoose = require('mongoose');
 
 const dbName = 'AbriTest' // if the database doesn't exists, then it will be created
-// mongoose.Promise = global.Promise; // is this really needed?
-mongoose.connect(`mongodb://localhost:27017/${dbName}`, {
+mongoose.Promise = global.Promise; // is this really needed?
+mongoose.connect(`mongodb://localhost:27017/${dbName}?authSource=admin`, {
     useUnifiedTopology: true,
     useNewUrlParser: true,
-    // to connecto to "admin" db you need to login with below user + pass
-    // user: 'mongoadmin',
-    // pass: 'secret',
+    // to connecto with authSource=admin you need to login with below user + pass
+    user: 'mongoadmin',
+    pass: 'secret',
 }).then(() => {
     console.log(`successfully connected to database ${dbName}`);
 }).catch(err => {
     console.log(`error connecting to database ${dbName}`);
+    console.log(err);
     process.exit();
 });
+
+const kittySchema = new mongoose.Schema({
+  name: String
+});
+
+const Kitten = mongoose.model('Kitten', kittySchema);
+
+const silence = new Kitten({ name: 'Silence' });
+console.log(silence.name); // 'Silence'
+
+async function saveKitten () {
+  await silence.save();
+};
+saveKitten();
+
+async function getKitten () {
+  const res = await Kitten.find();
+  console.log(res);
+  return res;
+};
+
+
 
 app.use(express.json()); /* bodyParser.json() is deprecated */
 
@@ -47,6 +70,15 @@ app.use(express.json()); /* bodyParser.json() is deprecated */
 app.use(
   express.urlencoded({ extended: true })
 ); /* bodyParser.urlencoded() is deprecated */
+
+app.get("/get", async (req, res) => {
+  const kittens = await getKitten();
+  console.log(kittens)
+  res.json({ 
+    message: "All Kittens",
+    kittens: kittens,
+  });
+});
 
 // simple route
 app.get("/json", (req, res) => {

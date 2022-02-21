@@ -48,22 +48,6 @@ const kittySchema = new mongoose.Schema({
 
 const Kitten = mongoose.model('Kitten', kittySchema);
 
-const silence = new Kitten({ name: 'Silence' });
-console.log(silence.name); // 'Silence'
-
-async function saveKitten () {
-  await silence.save();
-};
-saveKitten();
-
-async function getKitten () {
-  const res = await Kitten.find();
-  console.log(res);
-  return res;
-};
-
-
-
 app.use(express.json()); /* bodyParser.json() is deprecated */
 
 // parse requests of content-type - application/x-www-form-urlencoded
@@ -71,14 +55,18 @@ app.use(
   express.urlencoded({ extended: true })
 ); /* bodyParser.urlencoded() is deprecated */
 
-app.get("/get", async (req, res) => {
-  const kittens = await getKitten();
-  console.log(kittens)
-  res.json({ 
-    message: "All Kittens",
-    kittens: kittens,
-  });
-});
+async function saveKitten () {
+  const silence = new Kitten({ name: 'Silence' });
+  console.log(silence.name); // 'Silence'
+  await silence.save();
+};
+// saveKitten();
+
+async function getKitten () {
+  const res = await Kitten.find();
+  console.log(res);
+  return res;
+};
 
 const deleteAllData = async () => {
   try {
@@ -90,6 +78,26 @@ const deleteAllData = async () => {
   }
 };
 
+app.get("/add", async (req, res) => {
+  await saveKitten();
+  const kittens = await Kitten.find();
+  console.log(kittens)
+  res.json({ 
+    message: "Kitten added, these are all your cats",
+    kittens: kittens,
+  });
+});
+
+
+app.get("/get", async (req, res) => {
+  const kittens = await getKitten();
+  console.log(kittens)
+  res.json({ 
+    message: "All Kittens",
+    kittens: kittens,
+  });
+});
+
 app.get("/delete", async (req, res) => {
   const isDeleted = await deleteAllData();
   console.log(isDeleted)
@@ -98,8 +106,6 @@ app.get("/delete", async (req, res) => {
     kittens: isDeleted,
   });
 });
-
-
 
 // simple route
 app.get("/json", (req, res) => {

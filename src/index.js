@@ -80,6 +80,27 @@ app.get("/get", async (req, res) => {
   });
 });
 
+const deleteAllData = async () => {
+  try {
+    await Kitten.deleteMany();
+    console.log('All Data successfully deleted');
+    return 'All Data successfully deleted';
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+app.get("/delete", async (req, res) => {
+  const isDeleted = await deleteAllData();
+  console.log(isDeleted)
+  res.json({ 
+    message: "All Kittens",
+    kittens: isDeleted,
+  });
+});
+
+
+
 // simple route
 app.get("/json", (req, res) => {
   res.json({ 
